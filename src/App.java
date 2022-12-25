@@ -85,7 +85,6 @@ public class App {
     }
 
     public static int useMileage(Map<String, Integer> normarSsrGetStatus, int totalRequiredLimitBreak, int mileage, int limitBreak) {
-        
         List<Map.Entry<String, Integer>> entryList = new LinkedList<>(normarSsrGetStatus.entrySet());
         entryList.sort(((o2, o1) -> normarSsrGetStatus.get(o2.getKey()) - normarSsrGetStatus.get(o1.getKey())));
         for(Map.Entry<String, Integer> entry : entryList){
