@@ -109,7 +109,6 @@ public class App {
                 } else break;
             }
         }
-
         return totalRequiredLimitBreak == 0 ? 5 : limitBreak;
     }
 }
