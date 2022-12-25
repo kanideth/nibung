@@ -1,10 +1,8 @@
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class App {
+public class PickUp {
     private static final String PILGRIM = "filgrim";
     private static final String NORMAR = "normar";
     private static final String[] HONHAMIMMANZAP = {"홍련", "하란", "라푼젤", "미만잡", "반박", "안받음"};
@@ -20,7 +18,6 @@ public class App {
                 int totalGacha = 0;
                 int limitBreak = 0;
                 int mileage = 0;
-                int totalRequiredLimitBreak = 20;
                 while(true) {
                     totalGacha++;
                     if (totalGacha % 200 == 0) mileage++;
@@ -32,22 +29,36 @@ public class App {
                         getStatus.put(pilgrim, getStatus.getOrDefault(pilgrim, 0) + 1);
                         if (getStatus.get(pilgrim) == 4) {
                             limitBreak++;
-                            totalRequiredLimitBreak -= 4;
                         }
-                    } else if (ddeotnya > 5 && ddeotnya < 41) {
+                    } else if (ddeotnya > 5 && ddeotnya < 21) {
                         String normarSsr = addSsr(NORMAR);
                         getStatus.put(normarSsr, getStatus.getOrDefault(normarSsr, 0) + 1);
-                        normarSsrGetStatus.put(normarSsr, normarSsrGetStatus.getOrDefault(normarSsr, 0) + 1);
                         if (getStatus.get(normarSsr) == 4) {
                             normarSsrGetStatus.remove(normarSsr);
-                            totalRequiredLimitBreak -= 4;
                             limitBreak++;
                         }  
+                    } else if (ddeotnya > 20 && ddeotnya < 41) {
+                        String pickup = addSsr("PICKUP");
+                        getStatus.put(pickup, getStatus.getOrDefault(pickup, 0) + 1);
+                        if (getStatus.get(pickup) == 4) {
+                            getStatus.remove(pickup);
+                            limitBreak++;
+                        }
                     }
-                    if (mileage*4 >= totalRequiredLimitBreak) {
-                        limitBreak = useMileage(normarSsrGetStatus, totalRequiredLimitBreak, mileage, limitBreak);
+                    if (getStatus.get("pickup") != null) {
+                        int pickupCount = getStatus.get("pickup");
+                        if (mileage > 0 && pickupCount < 4) {
+                            while (pickupCount == 4 || mileage == 0) {
+                                pickupCount++;
+                                mileage--;
+                            }
+                            if (pickupCount == 4) {
+                                getStatus.remove("pickup");
+                                limitBreak++;
+                            }
+                        }
                     }
-    
+
                     if (limitBreak == 5) {
                         allTotalGacha += totalGacha;
                         totalGacha = editGachaCount(totalGacha);
@@ -70,21 +81,7 @@ public class App {
         }
 
         System.out.println("평균 가챠 횟수 : " + averageGacha/20);
-
     }
-    
-    public static String addSsr(String enterprise) {
-        String result = "";
-        switch (enterprise) {
-            case "PILGRIM" :
-                result = HONHAMIMMANZAP[(int)(Math.random()*(HONHAMIMMANZAP.length - 1))];
-                break;
-            default :
-                result = Integer.toString((int)(Math.random()*14));
-        }
-        return result;
-    }
-
     public static int editGachaCount(int totalGacha) {
         int round = (int)(Math.round((double)((totalGacha % 100) / 10)));
         if (round > 7) {
@@ -97,19 +94,18 @@ public class App {
         return ((totalGacha / 100)*10 + round)*10;
     }
 
-    public static int useMileage(Map<String, Integer> normarSsrGetStatus, int totalRequiredLimitBreak, int mileage, int limitBreak) {
-        List<Map.Entry<String, Integer>> entryList = new LinkedList<>(normarSsrGetStatus.entrySet());
-        entryList.sort(((o2, o1) -> normarSsrGetStatus.get(o2.getKey()) - normarSsrGetStatus.get(o1.getKey())));
-        for(Map.Entry<String, Integer> entry : entryList){
-            if (entry.getValue() < 4) {
-                int requiredPoint = 4 - entry.getValue();
-                if (requiredPoint <= mileage) {
-                    totalRequiredLimitBreak -= 4;
-                    mileage -= requiredPoint;
-                } else break;
-            }
+    public static String addSsr(String enterprise) {
+        String result = "";
+        switch (enterprise) {
+            case "PILGRIM" :
+                result = HONHAMIMMANZAP[(int)(Math.random()*(HONHAMIMMANZAP.length - 1))];
+                break;
+            case "PICKUP" :
+                result = "pickup";
+                break;
+            default :
+                result = Integer.toString((int)(Math.random()*39));
         }
-
-        return totalRequiredLimitBreak == 0 ? 5 : limitBreak;
+        return result;
     }
 }
